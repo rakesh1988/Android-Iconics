@@ -40,6 +40,7 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Rect;
@@ -66,8 +67,29 @@ import static android.support.annotation.Dimension.PX;
  * A custom {@link Drawable} which can display icons from icon fonts.
  */
 public class IconicsDrawable extends Drawable {
-    public static final int ANDROID_ACTIONBAR_ICON_SIZE_DP = 24;
-    public static final int ANDROID_ACTIONBAR_ICON_SIZE_PADDING_DP = 1;
+    /**
+     * Size of {@link android.support.v7.widget.Toolbar} icon in dp
+     * */
+    @Dimension(unit = DP)
+    public static final int TOOLBAR_ICON_SIZE = 24;
+
+    /**
+     * Size of {@link android.support.v7.widget.Toolbar} icon padding in dp
+     * */
+    @Dimension(unit = DP)
+    public static final int TOOLBAR_ICON_PADDING = 1;
+
+    /**
+     * @deprecated use {@link #TOOLBAR_ICON_SIZE} instead
+     * */
+    @Deprecated
+    public static final int ANDROID_ACTIONBAR_ICON_SIZE_DP = TOOLBAR_ICON_SIZE;
+
+    /**
+     * @deprecated use {@link #TOOLBAR_ICON_PADDING} instead
+     * */
+    @Deprecated
+    public static final int ANDROID_ACTIONBAR_ICON_SIZE_PADDING_DP = TOOLBAR_ICON_PADDING;
 
     private Context mContext;
 
@@ -76,7 +98,7 @@ public class IconicsDrawable extends Drawable {
 
     private boolean mRespectFontBounds = false;
 
-    private int mIconColor;
+    private ColorStateList mIconColor;
     private Paint mIconPaint;
     private int mContourColor;
     private Paint mContourPaint;
@@ -256,13 +278,22 @@ public class IconicsDrawable extends Drawable {
      * @return The current IconExtDrawable for chaining.
      */
     public IconicsDrawable color(@ColorInt int color) {
-        int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        mIconPaint.setColor(Color.rgb(red, green, blue));
-        mIconColor = color;
-        setAlpha(Color.alpha(color));
-        invalidateSelf();
+        mIconColor = ColorStateList.valueOf(color);
+        updateIconColor();
+        return this;
+    }
+
+    /**
+     * Set the color of the drawable.
+     *
+     * @param colors The color, usually from android.graphics.Color or 0xFF012345.
+     * @return The current IconExtDrawable for chaining.
+     */
+    public IconicsDrawable color(ColorStateList colors) {
+        if (colors != null) {
+            mIconColor = colors;
+            updateIconColor();
+        }
         return this;
     }
 
@@ -288,9 +319,16 @@ public class IconicsDrawable extends Drawable {
 
 
     /**
-     * Returns the icon color
+     * Returns the icon default color
      */
     public int getColor() {
+        return mIconColor.getDefaultColor();
+    }
+
+    /**
+     * Return the icon colors
+     */
+    public ColorStateList getColorList() {
         return mIconColor;
     }
 
@@ -417,7 +455,7 @@ public class IconicsDrawable extends Drawable {
      */
     @Deprecated
     public IconicsDrawable actionBarSize() {
-        return sizeDp(ANDROID_ACTIONBAR_ICON_SIZE_DP);
+        return sizeDp(TOOLBAR_ICON_SIZE);
     }
 
     /**
@@ -426,8 +464,8 @@ public class IconicsDrawable extends Drawable {
      * @return
      */
     public IconicsDrawable actionBar() {
-        sizeDp(ANDROID_ACTIONBAR_ICON_SIZE_DP);
-        paddingDp(ANDROID_ACTIONBAR_ICON_SIZE_PADDING_DP);
+        sizeDp(TOOLBAR_ICON_SIZE);
+        paddingDp(TOOLBAR_ICON_PADDING);
         return this;
     }
 
@@ -756,6 +794,8 @@ public class IconicsDrawable extends Drawable {
 
     /**
      * Sets the opacity
+     * **NOTE** if you define a color (or as part of a colorStateList) with alpha
+     * the alpha value of that color will ALWAYS WIN!
      *
      * @param alpha
      * @return The current IconExtDrawable for chaining.
@@ -846,19 +886,38 @@ public class IconicsDrawable extends Drawable {
     }
 
     @Override
-    public boolean setState(int[] stateSet) {
-        setAlpha(mAlpha);
-        return super.setState(stateSet);
+    public boolean setState(@NonNull int[] stateSet) {
+        boolean b = super.setState(stateSet);
+        return b || (mIconColor != null && mIconColor.isStateful() || mColorFilter != null || mTintFilter != null);
+    }
+
+    @Override
+    public int getOpacity() {
+        if (mTintFilter != null || mIconPaint.getColorFilter() != null) {
+            return PixelFormat.TRANSLUCENT;
+        }
+        switch (getAlpha()) {
+            case 255:
+                return PixelFormat.OPAQUE;
+            case 0:
+                return PixelFormat.TRANSPARENT;
+        }
+        return PixelFormat.TRANSLUCENT;
     }
 
     @Override
     protected boolean onStateChange(int[] stateSet) {
+        boolean ret = false;
+        if (mIconColor != null && mIconColor.isStateful()) {
+            updateIconColor();
+            ret = true;
+        }
         if (mTint != null && mTintMode != null) {
             mTintFilter = updateTintFilter(mTint, mTintMode);
             invalidateSelf();
-            return true;
+            ret = true;
         }
-        return false;
+        return ret;
     }
 
     @Override
@@ -870,12 +929,6 @@ public class IconicsDrawable extends Drawable {
     public int getIntrinsicHeight() {
         return mSizeY;
     }
-
-    @Override
-    public int getOpacity() {
-        return this.mAlpha;
-    }
-
 
     @Override
     public void setAlpha(int alpha) {
@@ -1005,6 +1058,33 @@ public class IconicsDrawable extends Drawable {
         float offsetY = startY - (mPathBounds.top);
 
         mPath.offset(offsetX + mIconOffsetX, offsetY + mIconOffsetY);
+    }
+
+
+    /**
+     * Ensures that the icon paint and alpha is consistent with icon state, invalidates icon if
+     * any changes were made
+     */
+    private void updateIconColor() {
+        boolean invalidate = false;
+
+        int color = mIconColor.getColorForState(getState(), mIconColor.getDefaultColor());
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+
+        int iconColor = Color.rgb(red, green, blue);
+        if (iconColor != mIconPaint.getColor()) {
+            mIconPaint.setColor(iconColor);
+            invalidate = true;
+        }
+
+        int alpha = Color.alpha(color);
+        if (alpha != 255 && alpha != mAlpha) {
+            setAlpha(alpha);
+        } else if (invalidate) {
+            invalidateSelf();
+        }
     }
 
 

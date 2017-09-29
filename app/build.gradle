@@ -12,9 +12,8 @@ android {
     defaultConfig {
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 28011
-        versionName "2.8.1"
-        enforceUniquePackageName false
+        versionCode 29301
+        versionName "2.9.3"
     }
 
     buildTypes {
@@ -35,19 +34,8 @@ android {
             zipAlignEnabled true
             minifyEnabled false
         }
+    }
 
-        applicationVariants.all { variant ->
-            variant.outputs.each { output ->
-                def outputFile = output.outputFile
-                if (outputFile != null && outputFile.name.endsWith('.apk')) {
-                    def fileName = outputFile.name.replace(".apk", "-v" + defaultConfig.versionName + "-c" + defaultConfig.versionCode + ".apk")
-                    output.outputFile = new File(outputFile.parent, fileName)
-                }
-            }
-        }
-    }
-    productFlavors {
-    }
     lintOptions {
         abortOnError false
     }
@@ -55,6 +43,7 @@ android {
 
 dependencies {
     compile "com.android.support:appcompat-v7:${rootProject.ext.supportLibVersion}"
+    compile "com.android.support:design:${rootProject.ext.supportLibVersion}"
     compile "com.android.support:recyclerview-v7:${rootProject.ext.supportLibVersion}"
     compile "com.android.support:cardview-v7:${rootProject.ext.supportLibVersion}"
 
@@ -62,29 +51,33 @@ dependencies {
     // contains util classes to support various android versions, and clean up code
     // comes with the awesome "Holder"-Pattern
     // https://github.com/mikepenz/Materialize
-    compile 'com.mikepenz:materialize:1.0.0@aar'
+    compile 'com.mikepenz:materialize:1.0.3@aar'
 
     // used to fill the RecyclerView with the DrawerItems
     // and provides single and multi selection, expandable items
     // https://github.com/mikepenz/FastAdapter
-    compile 'com.mikepenz:fastadapter:2.0.0@aar'
+    compile 'com.mikepenz:fastadapter:2.6.3@aar'
+    compile 'com.mikepenz:fastadapter-commons:2.6.0@aar'
 
     //used to generate the drawer on the left
     //https://github.com/mikepenz/MaterialDrawer
-    compile('com.mikepenz:materialdrawer:5.7.0@aar') {
+    compile('com.mikepenz:materialdrawer:5.9.4@aar') {
         transitive = true
         exclude module: "fastadapter"
         exclude module: "iconics-core"
+        exclude group: "com.android.support"
     }
 
     // used to generate the Open Source section
     // https://github.com/mikepenz/AboutLibraries
-    compile('com.mikepenz:aboutlibraries:5.8.5@aar') {
+    compile('com.mikepenz:aboutlibraries:5.9.6@aar') {
         transitive = true
         exclude module: "fastadapter"
         exclude module: "iconics-core"
+        exclude group: "com.android.support"
     }
 
+    compile project(':iconics-view-library')
     compile project(':fontawesome-typeface-library')
     compile project(':material-design-iconic-typeface-library')
     compile project(':google-material-typeface-library')
@@ -97,4 +90,5 @@ dependencies {
     compile project(':devicon-typeface-library')
     compile project(':foundation-icons-typeface-library')
     compile project(':ionicons-typeface-library')
+    compile project(':pixeden-7-stroke-typeface-library')
 }

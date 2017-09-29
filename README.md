@@ -1,4 +1,4 @@
-#Android-Iconics  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.mikepenz/iconics-core/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.mikepenz/iconics-core) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android--Iconics-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1164)
+# Android-Iconics  [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.mikepenz/iconics-core/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/com.mikepenz/iconics-core) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Android--Iconics-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/1164)
 
 ![Image](https://raw.githubusercontent.com/mikepenz/Android-Iconics/feature/next-generation/DEV/github/banner.png)
 
@@ -39,35 +39,55 @@ Use the icons in the variation you need them.
 **Need more?**
 Provide additional fonts for you project, or even create your custom font with just the icons you need.
 
-#Migration
+# Migration
 - [MIGRATION GUIDE](https://github.com/mikepenz/Android-Iconics/blob/develop/MIGRATION.md)
 
-#Setup
+# Setup
 
-##1. Provide the gradle dependency
+## 1. Provide the gradle dependency
 ```gradle
-compile "com.mikepenz:iconics-core:2.8.1@aar"
+//the core iconcis library (without any widgets)
+compile "com.mikepenz:iconics-core:2.9.3@aar"
+```
+
+## 1b. (optional) Add the view's dependency
+```
+//this adds all ui view widgets (IconicsButton, IconicsImageView, ...)
+compile "com.mikepenz:iconics-views:2.9.3@aar"
 compile "com.android.support:appcompat-v7:${supportLibVersion}"
 ```
 
-##2. Choose your desired fonts
-```gradle
-compile 'com.mikepenz:google-material-typeface:2.2.0.3.original@aar' 
-compile 'com.mikepenz:material-design-iconic-typeface:2.2.0.2@aar'
-compile 'com.mikepenz:fontawesome-typeface:4.7.0.0@aar'
-compile 'com.mikepenz:octicons-typeface:3.2.0.2@aar'
-compile 'com.mikepenz:meteocons-typeface:1.1.0.2@aar'
-compile 'com.mikepenz:community-material-typeface:1.5.54.2@aar'
-compile 'com.mikepenz:weather-icons-typeface:2.0.10.2@aar'
-compile 'com.mikepenz:typeicons-typeface:2.0.7.2@aar'
-compile 'com.mikepenz:entypo-typeface:1.0.0.2@aar'
-compile 'com.mikepenz:devicon-typeface:2.0.0.2@aar'
-compile 'com.mikepenz:foundation-icons-typeface:3.0.0.2@aar'
-compile 'com.mikepenz:ionicons-typeface:2.0.1.2@aar'
+
+## 2. Choose your desired fonts
+```groove
+compile 'com.mikepenz:google-material-typeface:3.0.1.1.original@aar'
+compile 'com.mikepenz:material-design-iconic-typeface:2.2.0.3@aar'
+compile 'com.mikepenz:fontawesome-typeface:4.7.0.1@aar'
+compile 'com.mikepenz:octicons-typeface:3.2.0.3@aar'
+compile 'com.mikepenz:meteocons-typeface:1.1.0.3@aar'
+compile 'com.mikepenz:community-material-typeface:1.9.32.2@aar'
+compile 'com.mikepenz:weather-icons-typeface:2.0.10.3@aar'
+compile 'com.mikepenz:typeicons-typeface:2.0.7.3@aar'
+compile 'com.mikepenz:entypo-typeface:1.0.0.3@aar'
+compile 'com.mikepenz:devicon-typeface:2.0.0.3@aar'
+compile 'com.mikepenz:foundation-icons-typeface:3.0.0.3@aar'
+compile 'com.mikepenz:ionicons-typeface:2.0.1.3@aar'
+compile 'com.mikepenz:pixeden-7-stroke-typeface:1.2.0.1@aar'
 ```
 
-##3. Define IconicsLayoutInflater to enable automatic xml icons detection (optional)
+## 3. Define IconicsLayoutInflater to enable automatic xml icons detection (optional)
 Set the `IconicsLayoutInflater` as new `LayoutInflaterFactory`. This will enable automatic icon detection for `TextViews`,`Buttons`, and allow you to set icons on `ImageView`'s via xml. This is compatible with libs which wrap the `baseContext` like [Calligraphy](https://github.com/chrisjenx/Calligraphy). This does not work on FAB's please use the `Context-Injection` instead.
+If compileSdkVersion >= 26:
+```java
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    LayoutInflaterCompat.setFactory2(getLayoutInflater(), new IconicsLayoutInflater2(getDelegate()));
+    //...
+    super.onCreate(savedInstanceState);
+    //...
+}
+```
+Else:
 ```java
 @Override
 protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +98,7 @@ protected void onCreate(Bundle savedInstanceState) {
 }
 ```
 
-###3. ALTERNATIVE: Inject into Context (optional)
+### 3. ALTERNATIVE: Inject into Context (optional)
 Wrap the `Activity` context. This will enable the same features as Step 3.1., but is not compatible with other libs wrapping the `baseContext`.
 ```java
 @Override
@@ -88,8 +108,8 @@ protected void attachBaseContext(Context newBase) {
 ```
 
 
-#Usage
-##Use as drawable
+# Usage
+## Use as drawable
 
 ```java
 new IconicsDrawable(this)
@@ -98,19 +118,19 @@ new IconicsDrawable(this)
     .sizeDp(24)
 ```
 
-##Use via XML
+## Use via XML
 
 If you use the Iconics library via XML provide the icon you want to use in the following syntax: `gmd-favorite` --> `fontId`-`iconName`. A list of the
-available fonts and their `fontId` can be found near the end of the README.md
+available fonts and their `fontId` can be found [here](#available-fonts).
 All icon names from the default fonts can be found via the [DEMO](https://play.google.com/store/apps/details?id=com.mikepenz.iconics.sample) application.
 
-####Notation within text
+#### Notation within text
 Use the `{` icon-definer `}` syntax
 ```gson
 Some great text with a {faw-android} font awesome icon and {met-wind} meteocons icons.
 ```
 
-###As ImageView (only available if you follow Step 3 or inject the context)
+### As ImageView (only available if you follow Step 3 or inject the context)
 ```xml
 <ImageView
     android:layout_width="48dp"
@@ -131,18 +151,18 @@ Some great text with a {faw-android} font awesome icon and {met-wind} meteocons 
     //app:ico_padding="0dp"
     //app:ico_size="48dp"
 ```
-###As TextView (only available if you inject the context)
+### As TextView (only available if you inject the context)
 ```xml
 <TextView
-    android:text="{gmd-chart} Chart"
+    android:text="{gmd-bubble-chart} Chart"
     android:textColor="@android:color/black"
     android:layout_width="wrap_content"
     android:layout_height="56dp"
     android:textSize="16sp"/>
 ```
 
-###Custom Views (if you do NOT follow Step 3 or inject the context)
-####As IconicsImageView
+### Custom Views (if you do NOT follow Step 3 or inject the context)
+#### As IconicsImageView
 ```xml
 <com.mikepenz.iconics.view.IconicsImageView
     android:layout_width="72dp"
@@ -151,7 +171,7 @@ Some great text with a {faw-android} font awesome icon and {met-wind} meteocons 
     app:iiv_icon="gmd-favorite" />
 ```
 
-####As IconicsTextView
+#### As IconicsTextView
 ```xml
 <com.mikepenz.iconics.view.IconicsTextView
         android:text="abc{hif-test}defgh{faw-adjust}ijk{fon-test1}lmnopqrstuv{fon-test2}wxyz"
@@ -161,7 +181,7 @@ Some great text with a {faw-android} font awesome icon and {met-wind} meteocons 
         android:textSize="16sp"/>
 ```
 
-####As IconicsButton
+#### As IconicsButton
 ```xml
 <com.mikepenz.iconics.view.IconicsButton
         android:text="{faw-adjust} Button"
@@ -169,15 +189,15 @@ Some great text with a {faw-android} font awesome icon and {met-wind} meteocons 
         android:layout_height="60dp"/>
 ```
 
-###Automatic XML 
+### Automatic XML 
 
 
-#Screenshots
+# Screenshots
 
 ![Image](https://raw.githubusercontent.com/mikepenz/Android-Iconics/develop/DEV/github/screenshots1.jpg)
 
 
-#Available fonts
+# Available fonts
 * [Google Material Design Icons](https://github.com/google/material-design-icons)
   * "gmd"
   * **ORIGINAL by Google** compile 'com.mikepenz:google-material-typeface:+.original@aar'
@@ -214,12 +234,15 @@ Some great text with a {faw-android} font awesome icon and {met-wind} meteocons 
 * [Ionicons](http://ionicons.com/)
   * "ion"
   * compile 'com.mikepenz:ionicons-typeface:+@aar'
+* [Pixden7Stroke](http://themes-pixeden.com/font-demos/7-stroke/)
+  * "pe7"
+  * compile 'com.mikepenz:pixeden-7-stroke-typeface:+@aar'
 
 Licenses for all included fonts are linked inside the class or can be found on the coresponding repoistories.
 
-#Advanced Usage
+# Advanced Usage
 
-###Register fonts
+### Register fonts
 
 If you want to add your own custom font, or a GenericFont you have to register this font (before using it). The best place to do this is the `Application`.
 ```java
@@ -238,7 +261,7 @@ public class CustomApplication extends Application {
 
 ```
 
-###Advanced IconicsBuilder
+### Advanced IconicsBuilder
 Everything is easy and simple. Right? But now you got a single icon within your textview and you need additional styling?
 Just define the style for all icons or only a specific one. You can find this in the PlaygroundActivity of the sample too.
 ```java
@@ -249,17 +272,17 @@ new Iconics.IconicsBuilder().ctx(this)
                 .build();
 ```
 
-###String icon-key or typeface enum
+### String icon-key or typeface enum
 Sometimes you won't like to use the icon-key ("faw-adjust") like this, but use the enum provided by a specific font. Both is valid:
 ```java
-  new IconicsDrawable(this, "faw-adjust").actionBarSize()
+  new IconicsDrawable(this, "faw-adjust").actionBar()
 ```
 ```java
-  new IconicsDrawable(this, FontAwesome.Icon.faw_adjust).sizeDp(24)
+  new IconicsDrawable(this, FontAwesome.Icon.faw_adjust).sizeDp(24).paddingDp(1)
 ```
 
 
-##Create custom fonts
+## Create custom fonts
 This is possible with only the *.ttf and *.css mapping file. And will take you 2 minutes.
 
 You can get these two files by downloading a web icon font, or if you want to create your
@@ -273,7 +296,7 @@ After you got those two files, head over to the icon addon creation tool [androi
 Enter all the information. Add the *.ttf and *.css and click the button. It will generate and download the icon font addon as
 zip. (this tool is local only, no files are sent to a server, you can safely use it with any icons)
 
-#ProGuard
+# ProGuard
 Exclude `R` from ProGuard to enable the font addon auto detection
 ```proguard
 -keep class .R
@@ -283,23 +306,26 @@ Exclude `R` from ProGuard to enable the font addon auto detection
 ```
 All other ProGuard rules are now bundled internally with each font. 
 
-#Demo
+# Demo
 You can try the sample application out. It's on Google Play ;)
 https://play.google.com/store/apps/details?id=com.mikepenz.iconics.sample
 
+# Special Contributor
+- [Peter Gulko](https://github.com/zTrap) Thanks for providing better XML support for compound Iconics drawables, and for doing the initial work of splitting up core and views library
+- Also thanks for all the other contributors.
 
-#Credits
+# Credits
 - [Joan Zapata](https://github.com/JoanZapata) He is the creator of [Android-Iconify](https://github.com/JoanZapata/android-iconify) which gave me the idea of this project. Some core concepts and ideas were reused, but everything is written from scratch.
 - [Christopher Jenkins](https://github.com/chrisjenx/) Thanks for the great usage of a custom `ContextWrapper` inside [Calligraphy](https://github.com/chrisjenx/Calligraphy/)
 - [Stephan Schober](https://github.com/tehfonsi)
 
-#Developed By
+# Developed By
 
 * Mike Penz 
  * [mikepenz.com](http://mikepenz.com) - <mikepenz@gmail.com>
  * [paypal.me/mikepenz](http://paypal.me/mikepenz)
 
-#License
+# License
 
     Copyright 2016 Mike Penz
 
